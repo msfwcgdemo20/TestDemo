@@ -1,0 +1,31 @@
+trigger:
+- master
+
+variables:
+  vmImageName: 'windows-latest'
+
+steps:
+  - task: UseDotNet@2
+    inputs:
+        version: '3.1.200'
+  
+  - task: DotNetCoreCLI@2
+    displayName: Install dotnet-ef
+    inputs:
+        command: 'custom'
+        custom: 'tool'
+        arguments: 'install --global dotnet-ef'
+
+  - powershell: |
+      dotnet ef migrations add InitialMigration
+      dotnet ef migrations script --startup-project $(Build.SourcesDirectory)/testdemo.csproj -o $(build.artifactstagingdirectory)/migrations/scripts.sql -i
+      
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: Migration Script'
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/migrations'
+      ArtifactName: 'Migrations'
+    
+   
+    

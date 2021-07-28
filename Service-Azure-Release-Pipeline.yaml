@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testdemo-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: testdemo-service
+  template:
+    metadata:
+      labels:
+        app: testdemo-service
+    spec:      
+      containers:
+      - name: testdemo-service
+        image: demoinventorycr01.azurecr.io/project21july1-testdemoservice:latest
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        ports:
+        - containerPort: 80
+        env:
+        - name: SERVICE_API_PATH_BASE
+          value: testdemosvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: testdemo-service
+spec:  
+  type: ClusterIP
+  ports:
+  - port: 80
+  selector:
+    app: testdemo-service
